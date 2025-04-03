@@ -59,7 +59,7 @@ class MountServiceTest extends TestCase
 
         $result = $this->mountService->toMountedUrl($url);
 
-        $expected = Url::builder()->path('/path')->params(['other' => 'value'])->build();
+        $expected = Url::builder()->path('/path')->params(['p' => 'value', 'other' => 'value'])->build();
 
         $this->assertEquals($expected, $result);
     }

@@ -36,7 +36,7 @@ class MicrositeUrlRewriteHandler implements UrlRewriterHandler
         }
 
         if ($this->isMicrositePath($url->path)) {
-            return $url;
+            return $this->cutMicrositePath($url);
         }
 
         if ($this->mountService === null) {
@@ -57,6 +57,12 @@ class MicrositeUrlRewriteHandler implements UrlRewriterHandler
             ->scheme('https')
             ->host($this->micrositeContext->mainHost ?? '')
             ->build();
+    }
+
+    private function cutMicrositePath(Url $url): Url
+    {
+        $path = substr($url->path, strlen($this->micrositeContext->micrositePath));
+        return $url->toBuilder()->path($path)->build();
     }
 
     private function isMicrositePath(string $path): bool
