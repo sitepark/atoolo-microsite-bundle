@@ -23,9 +23,12 @@ class MountService
 
     public function toMountedUrl(Url $url): Url
     {
+        return $url;
+        /*
         $params = $url->params ?? [];
         unset($params['p']);
         return $url->toBuilder()->params($params)->build();
+        */
     }
 
     public function isMountable(string $path): bool

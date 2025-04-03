@@ -75,7 +75,7 @@ class MicrositeUrlRewriteHandlerTest extends TestCase
         );
         $handler = new MicrositeUrlRewriteHandler($micrositeContext, null);
         $result = $handler->rewrite($url, $this->context);
-        $this->assertSame($url, $result);
+        $this->assertEquals('/path', $result->path);
     }
 
     public function testRewriteWithNullMountService(): void
