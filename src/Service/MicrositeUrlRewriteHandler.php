@@ -36,7 +36,7 @@ class MicrositeUrlRewriteHandler implements UrlRewriterHandler
         }
 
         if ($this->isMicrositePath($url->path)) {
-            return $this->cutMicrositePath($url);
+            return $this->cutMicrositePath($url, $this->micrositeContext->micrositePath);
         }
 
         if ($this->mountService === null) {
@@ -59,9 +59,9 @@ class MicrositeUrlRewriteHandler implements UrlRewriterHandler
             ->build();
     }
 
-    private function cutMicrositePath(Url $url): Url
+    private function cutMicrositePath(Url $url, string $micrositePath): Url
     {
-        $path = substr($url->path, strlen($this->micrositeContext->micrositePath));
+        $path = substr($url->path ?? '/', strlen($micrositePath));
         return $url->toBuilder()->path($path)->build();
     }
 

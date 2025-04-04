@@ -24,9 +24,11 @@ use Psr\Log\LoggerInterface;
 #[CoversClass(MountService::class)]
 class MountServiceTest extends TestCase
 {
+    private MicrositeContext $micrositeContext;
     private MountService $mountService;
     private ResourceLoader&Stub $resourceLoader;
     private LoggerInterface&Stub $logger;
+    private Platform $platform;
 
     /**
      * @throws Exception
