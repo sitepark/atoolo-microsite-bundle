@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Microsite\Test\Environment;
 
 use Atoolo\Microsite\Environment\MicrositeContext;
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -34,4 +35,20 @@ class MicrositeContextTest extends TestCase
     {
         $this->assertFalse($this->context->isMicrositePath('/microsite/foo'));
     }
+
+    public function testMicrositePathEndsWithSlash(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Microsite path must not end with a slash');
+
+        new MicrositeContext(
+            '/resource/dir',
+            '/current/path',
+            '/microsite/path/',
+            'main.host',
+            1,
+            ['type1', 'type2'],
+        );
+    }
+
 }
