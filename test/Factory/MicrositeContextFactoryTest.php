@@ -49,6 +49,7 @@ class MicrositeContextFactoryTest extends TestCase
             configDir: '',
             searchIndex: '',
             translationLocales: [],
+            attributes: new DataBag([]),
             tenant: $this->createStub(ResourceTenant::class),
         );
         $this->rewriteContext = $this->createMock(UrlRewriteContext::class);
