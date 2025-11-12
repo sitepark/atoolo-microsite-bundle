@@ -19,6 +19,7 @@ class MicrositeContextTest extends TestCase
         $this->context = new MicrositeContext(
             resourceDir: '/var/www/example.com/www/resources',
             currentPath: '/test',
+            micrositeHost: 'www.test.com',
             micrositePath: '/microsite/blue',
             mainHost: 'example.com',
             siteId: 243,
@@ -42,12 +43,13 @@ class MicrositeContextTest extends TestCase
         $this->expectExceptionMessage('Microsite path must not end with a slash');
 
         new MicrositeContext(
-            '/resource/dir',
-            '/current/path',
-            '/microsite/path/',
-            'main.host',
-            1,
-            ['type1', 'type2'],
+            resourceDir: '/resource/dir',
+            currentPath: '/current/path',
+            micrositeHost: 'www.test.com',
+            micrositePath: '/microsite/path/',
+            mainHost: 'main.host',
+            siteId: 1,
+            mountableObjectTypes: ['type1', 'type2'],
         );
     }
 

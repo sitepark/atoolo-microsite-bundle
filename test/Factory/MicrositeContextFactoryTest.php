@@ -80,6 +80,7 @@ class MicrositeContextFactoryTest extends TestCase
         $request = $this->createMock(Request::class);
         $request->server = $this->createMock(ServerBag::class);
         $request->server->method('getString')->willReturnMap([
+            ['ATOOLO_MICROSITE_HOST', 'test.example.com'],
             ['ATOOLO_MICROSITE_PATH', '/microsite/test'],
             ['ATOOLO_MAIN_HOST', ''],
         ]);
@@ -97,6 +98,7 @@ class MicrositeContextFactoryTest extends TestCase
         $request = $this->createMock(Request::class);
         $request->server = $this->createMock(ServerBag::class);
         $request->server->method('getString')->willReturnMap([
+            ['ATOOLO_MICROSITE_HOST', 'test.example.com'],
             ['ATOOLO_MICROSITE_PATH', ''],
             ['ATOOLO_MAIN_HOST', 'example.com'],
         ]);
@@ -114,6 +116,7 @@ class MicrositeContextFactoryTest extends TestCase
         $request = $this->createMock(Request::class);
         $request->server = $this->createMock(ServerBag::class);
         $request->server->method('getString')->willReturnMap([
+            ['ATOOLO_MICROSITE_HOST', 'test.example.com'],
             ['ATOOLO_MICROSITE_PATH', '/microsite/test'],
             ['ATOOLO_MAIN_HOST', 'example.com'],
         ]);
@@ -138,6 +141,7 @@ class MicrositeContextFactoryTest extends TestCase
         $expected = new MicrositeContext(
             resourceDir: '/resource/dir',
             currentPath: '/base/path',
+            micrositeHost: 'test.example.com',
             micrositePath: '/microsite/test',
             mainHost: 'example.com',
             siteId: 0,

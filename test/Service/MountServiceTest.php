@@ -38,6 +38,7 @@ class MountServiceTest extends TestCase
         $this->micrositeContext = new MicrositeContext(
             resourceDir: '',
             currentPath: '/',
+            micrositeHost: 'www.test.com',
             micrositePath: '/microsite/abc',
             mainHost: 'www.example.com',
             siteId: 123,
@@ -82,6 +83,7 @@ class MountServiceTest extends TestCase
         $micrositeContext = new MicrositeContext(
             resourceDir: '',
             currentPath: null,
+            micrositeHost: 'www.test.com',
             micrositePath: '/microsite/abc',
             mainHost: 'www.example.com',
             siteId: 123,

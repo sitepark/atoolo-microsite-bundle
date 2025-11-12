@@ -68,6 +68,7 @@ class MicrositeUrlRewriteHandlerTest extends TestCase
         $micrositeContext = new MicrositeContext(
             resourceDir: '',
             currentPath: '/',
+            micrositeHost: 'www.test.com',
             micrositePath: '/microsite/abc',
             mainHost: 'www.example.com',
             siteId: 123,
@@ -85,6 +86,7 @@ class MicrositeUrlRewriteHandlerTest extends TestCase
         $micrositeContext = new MicrositeContext(
             resourceDir: '',
             currentPath: '/',
+            micrositeHost: 'www.test.com',
             micrositePath: '/microsite/abc',
             mainHost: 'www.example.com',
             siteId: 123,
@@ -103,6 +105,7 @@ class MicrositeUrlRewriteHandlerTest extends TestCase
         $micrositeContext = new MicrositeContext(
             resourceDir: '',
             currentPath: '/',
+            micrositeHost: 'www.test.com',
             micrositePath: '/microsite/abc',
             mainHost: 'www.example.com',
             siteId: 123,
@@ -124,6 +127,7 @@ class MicrositeUrlRewriteHandlerTest extends TestCase
         $micrositeContext = new MicrositeContext(
             resourceDir: '',
             currentPath: '/',
+            micrositeHost: 'www.test.com',
             micrositePath: '/microsite/abc',
             mainHost: 'www.example.com',
             siteId: 123,
