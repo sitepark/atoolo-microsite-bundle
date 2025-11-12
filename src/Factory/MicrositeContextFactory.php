@@ -34,16 +34,18 @@ class MicrositeContextFactory
         if (!$request) {
             return null;
         }
+        $micrositeHost = $request->server->getString('ATOOLO_MICROSITE_HOST');
         $micrositePath = $request->server->getString('ATOOLO_MICROSITE_PATH');
         $mainHost = $request->server->getString('ATOOLO_MAIN_HOST');
 
-        if (empty($micrositePath) || empty($mainHost)) {
+        if (empty($micrositeHost) || empty($micrositePath) || empty($mainHost)) {
             return null;
         }
 
         return new MicrositeContext(
             resourceDir: $this->resourceChannel->resourceDir,
             currentPath: $this->rewriteContext->getBasePath(),
+            micrositeHost: $micrositeHost,
             micrositePath: $micrositePath,
             mainHost: $mainHost,
             siteId: $this->getSiteId($micrositePath),

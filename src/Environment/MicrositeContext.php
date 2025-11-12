@@ -6,7 +6,9 @@ namespace Atoolo\Microsite\Environment;
 
 use Atoolo\Resource\Resource;
 use InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
+#[AsAlias(id: 'atoolo_microsite.context')]
 class MicrositeContext
 {
     /**
@@ -15,6 +17,7 @@ class MicrositeContext
     public function __construct(
         public readonly string $resourceDir,
         public readonly ?string $currentPath,
+        public readonly string $micrositeHost,
         public readonly string $micrositePath,
         public readonly string $mainHost,
         public readonly int $siteId,
