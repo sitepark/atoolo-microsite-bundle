@@ -9,6 +9,7 @@ use Atoolo\Resource\Exception\InvalidResourceException;
 use Atoolo\Resource\Exception\ResourceNotFoundException;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Resource\ResourceLocation;
+use Atoolo\Resource\Service\LangPathService;
 use Atoolo\Rewrite\Dto\Url;
 use Psr\Log\LoggerInterface;
 
@@ -17,6 +18,7 @@ class MountService
     public function __construct(
         private readonly MicrositeContext $micrositeContext,
         private readonly ResourceLoader $resourceLoader,
+        private readonly LangPathService $langPathService,
         private readonly Platform $platform,
         private readonly LoggerInterface $logger,
     ) {}
@@ -33,7 +35,10 @@ class MountService
 
     public function isMountable(string $path): bool
     {
-        if ($this->micrositeContext->isMicrositePath($path)) {
+
+        $langPath = $this->langPathService->parse($path);
+
+        if ($this->micrositeContext->isMicrositePath($langPath->path)) {
             return false;
         }
 
@@ -41,11 +46,11 @@ class MountService
             return false;
         }
 
-        if ($this->hasResourceMountableObjectType($path)) {
+        if ($this->hasResourceMountableObjectType($langPath->path)) {
             return true;
         }
 
-        return $this->isResourceInMicrositeNavigation($path);
+        return $this->isResourceInMicrositeNavigation($langPath->path);
     }
 
     private function isCurrentPathAlreadyMounted(): bool
