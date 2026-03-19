@@ -6,13 +6,11 @@ namespace Atoolo\Microsite\Test\Factory;
 
 use Atoolo\Microsite\Environment\MicrositeContext;
 use Atoolo\Microsite\Factory\MicrositeContextFactory;
-use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Loader\ManifestLoader;
 use Atoolo\Resource\Manifest;
 use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceHierarchyLoader;
-use Atoolo\Resource\ResourceTenant;
 use Atoolo\Rewrite\Service\UrlRewriteContext;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
@@ -38,22 +36,9 @@ class MicrositeContextFactoryTest extends TestCase
     protected function setUp(): void
     {
         $this->requestStack = $this->createMock(RequestStack::class);
-        $this->resourceChannel = new ResourceChannel(
-            id: '',
-            name: '',
-            anchor: '',
-            serverName: '',
-            isPreview: false,
-            nature: '',
-            locale: '',
-            baseDir: '',
-            resourceDir: '/resource/dir',
-            configDir: '',
-            searchIndex: '',
-            translationLocales: [],
-            attributes: new DataBag([]),
-            tenant: $this->createStub(ResourceTenant::class),
-        );
+        $this->resourceChannel = ResourceChannel::create([
+            'resourceDir' => '/resource/dir',
+        ]);
         $this->rewriteContext = $this->createMock(UrlRewriteContext::class);
         $this->manifestLoader = $this->createMock(ManifestLoader::class);
         $this->navigationHierarchyLoader = $this->createMock(ResourceHierarchyLoader::class);
