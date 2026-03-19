@@ -6,11 +6,12 @@ namespace Atoolo\Microsite\Test\Factory;
 
 use Atoolo\Microsite\Environment\MicrositeContext;
 use Atoolo\Microsite\Factory\MicrositeContextFactory;
+use Atoolo\Microsite\Test\TestResourceFactory;
 use Atoolo\Resource\DataBag;
-use Atoolo\Resource\Resource;
+use Atoolo\Resource\Loader\ManifestLoader;
+use Atoolo\Resource\Manifest;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceHierarchyLoader;
-use Atoolo\Resource\ResourceLanguage;
 use Atoolo\Resource\ResourceTenant;
 use Atoolo\Rewrite\Service\UrlRewriteContext;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -26,6 +27,7 @@ class MicrositeContextFactoryTest extends TestCase
     private RequestStack $requestStack;
     private ResourceChannel $resourceChannel;
     private UrlRewriteContext $rewriteContext;
+    private ManifestLoader $manifestLoader;
     private ResourceHierarchyLoader $navigationHierarchyLoader;
     private array $mountableObjectTypes;
     private MicrositeContextFactory $factory;
@@ -53,6 +55,7 @@ class MicrositeContextFactoryTest extends TestCase
             tenant: $this->createStub(ResourceTenant::class),
         );
         $this->rewriteContext = $this->createMock(UrlRewriteContext::class);
+        $this->manifestLoader = $this->createMock(ManifestLoader::class);
         $this->navigationHierarchyLoader = $this->createMock(ResourceHierarchyLoader::class);
         $this->mountableObjectTypes = ['type1', 'type2'];
 
@@ -60,6 +63,7 @@ class MicrositeContextFactoryTest extends TestCase
             $this->requestStack,
             $this->resourceChannel,
             $this->rewriteContext,
+            $this->manifestLoader,
             $this->navigationHierarchyLoader,
             $this->mountableObjectTypes,
         );
@@ -111,6 +115,43 @@ class MicrositeContextFactoryTest extends TestCase
     /**
      * @throws Exception
      */
+    public function testCreateReturnsMicrositeContextWithManifest(): void
+    {
+        $request = $this->createMock(Request::class);
+        $request->server = $this->createMock(ServerBag::class);
+        $request->server->method('getString')->willReturnMap([
+            ['ATOOLO_MICROSITE_HOST', 'test.example.com'],
+            ['ATOOLO_MICROSITE_PATH', '/microsite/test'],
+            ['ATOOLO_MAIN_HOST', 'example.com'],
+        ]);
+
+        $this->requestStack->method('getCurrentRequest')->willReturn($request);
+        $this->rewriteContext->method('getBasePath')->willReturn('/base/path');
+
+        $this->manifestLoader->method('load')->willReturn(new Manifest(home: 42, errors: []));
+
+        $root = TestResourceFactory::create([
+            'siteGroup' => ['id' => 5],
+        ]);
+        $this->navigationHierarchyLoader->method('loadRoot')->willReturn($root);
+
+        $context = $this->factory->create();
+
+        $expected = new MicrositeContext(
+            resourceDir: '/resource/dir',
+            currentPath: '/base/path',
+            micrositeHost: 'test.example.com',
+            micrositePath: '/microsite/test',
+            mainHost: 'example.com',
+            siteId: 5,
+            mountableObjectTypes: $this->mountableObjectTypes,
+        );
+        $this->assertEquals($expected, $context, 'The created context should match the expected one when manifest is available.');
+    }
+
+    /**
+     * @throws Exception
+     */
     public function testCreateReturnsMicrositeContext(): void
     {
         $request = $this->createMock(Request::class);
@@ -125,14 +166,9 @@ class MicrositeContextFactoryTest extends TestCase
 
         $this->rewriteContext->method('getBasePath')->willReturn('/base/path');
 
-        $root = new Resource(
-            location: '',
-            id: '123',
-            name: '',
-            objectType: '',
-            lang: $this->createStub(ResourceLanguage::class),
-            data: new DataBag([]),
-        );
+        $root = TestResourceFactory::create([
+            'id' => '123',
+        ]);
 
         $this->navigationHierarchyLoader->method('loadRoot')->willReturn($root);
 

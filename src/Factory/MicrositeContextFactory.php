@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Atoolo\Microsite\Factory;
 
 use Atoolo\Microsite\Environment\MicrositeContext;
+use Atoolo\Resource\Loader\ManifestLoader;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceHierarchyLoader;
 use Atoolo\Resource\ResourceLocation;
@@ -22,6 +23,8 @@ class MicrositeContextFactory
         #[Autowire(service: 'atoolo_resource.resource_channel')]
         private readonly ResourceChannel $resourceChannel,
         private readonly UrlRewriteContext $rewriteContext,
+        #[Autowire(service: 'atoolo_resource.manifest_loader')]
+        private readonly ManifestLoader $manifestLoader,
         #[Autowire(service: 'atoolo_resource.navigation_hierarchy_loader')]
         private readonly ResourceHierarchyLoader $navigationHierarchyLoader,
         #[Autowire(param: 'atoolo_microsite.mountable_object_types')]
@@ -42,18 +45,26 @@ class MicrositeContextFactory
             return null;
         }
 
+        $manifest = $this->manifestLoader->load($micrositePath);
+        if ($manifest === null) {
+            $siteId = $this->getSiteIdByNavigation($micrositePath);
+        } else {
+            $home = $this->navigationHierarchyLoader->loadRoot(ResourceLocation::of($micrositePath . '-' . $manifest->home));
+            $siteId = $home->data->getInt('siteGroup.id');
+        }
+
         return new MicrositeContext(
             resourceDir: $this->resourceChannel->resourceDir,
             currentPath: $this->rewriteContext->getBasePath(),
             micrositeHost: $micrositeHost,
             micrositePath: $micrositePath,
             mainHost: $mainHost,
-            siteId: $this->getSiteId($micrositePath),
+            siteId: $siteId,
             mountableObjectTypes: $this->mountableObjectTypes ?? [],
         );
     }
 
-    private function getSiteId(string $homeResourcePath): int
+    private function getSiteIdByNavigation(string $homeResourcePath): int
     {
         $home = $this->navigationHierarchyLoader->loadRoot(ResourceLocation::ofPath($homeResourcePath . '/'));
         return $home->data->getInt('siteGroup.id');

@@ -7,13 +7,12 @@ namespace Atoolo\Microsite\Test\Service;
 use Atoolo\Microsite\Environment\MicrositeContext;
 use Atoolo\Microsite\Service\MountService;
 use Atoolo\Microsite\Service\Platform;
-use Atoolo\Resource\DataBag;
-use Atoolo\Resource\Exception\InvalidResourceException;
+use Atoolo\Microsite\Test\TestResourceFactory;
 use Atoolo\Resource\Exception\ResourceNotFoundException;
-use Atoolo\Resource\Resource;
-use Atoolo\Resource\ResourceLanguage;
+use Atoolo\Resource\LangPath;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Resource\ResourceLocation;
+use Atoolo\Resource\Service\LangPathService;
 use Atoolo\Rewrite\Dto\Url;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
@@ -25,6 +24,7 @@ use Psr\Log\LoggerInterface;
 class MountServiceTest extends TestCase
 {
     private MicrositeContext $micrositeContext;
+    private LangPathService $langPathService;
     private MountService $mountService;
     private ResourceLoader&Stub $resourceLoader;
     private LoggerInterface&Stub $logger;
@@ -44,6 +44,7 @@ class MountServiceTest extends TestCase
             siteId: 123,
             mountableObjectTypes: ['event'],
         );
+        $this->langPathService = $this->createMock(LangPathService::class);
         $this->resourceLoader = $this->createStub(ResourceLoader::class);
         $this->platform = $this->createStub(Platform::class);
         $this->logger = $this->createStub(LoggerInterface::class);
@@ -51,6 +52,7 @@ class MountServiceTest extends TestCase
         $this->mountService = new MountService(
             $this->micrositeContext,
             $this->resourceLoader,
+            $this->langPathService,
             $this->platform,
             $this->logger,
         );
@@ -69,17 +71,22 @@ class MountServiceTest extends TestCase
 
     public function testIsMountableWithMicrositePath(): void
     {
+        $this->langPathService->method('parse')->willReturn(new LangPath(null, null, '/microsite/abc/path'));
         $this->assertFalse($this->mountService->isMountable('/microsite/abc/path'));
     }
 
     public function testIsMountableWithCurrentPathAlreadyMounted(): void
     {
+        $this->langPathService->method('parse')->willReturn(new LangPath(null, null, '/path'));
         $this->platform->method('fileExists')->willReturn(true);
         $this->assertFalse($this->mountService->isMountable('/path'));
     }
 
     public function testIsMountableWithCurrentPathIsNull(): void
     {
+
+        $this->langPathService->method('parse')->willReturn(new LangPath(null, null, '/path'));
+
         $micrositeContext = new MicrositeContext(
             resourceDir: '',
             currentPath: null,
@@ -92,11 +99,17 @@ class MountServiceTest extends TestCase
         $mountService = new MountService(
             $micrositeContext,
             $this->resourceLoader,
+            $this->langPathService,
             $this->platform,
             $this->logger,
         );
 
-        $resource = $this->createResource('/event', 'event');
+        $resource = TestResourceFactory::create([
+            'url' => '/event',
+            'id' => '123',
+            'objectType' => 'event',
+        ]);
+
         $this->resourceLoader->method('load')->willReturn($resource);
 
         $this->platform->method('fileExists')->willReturn(true);
@@ -106,7 +119,12 @@ class MountServiceTest extends TestCase
 
     public function testIsMountableWithResourceHasMountableObjectType(): void
     {
-        $resource = $this->createResource('/event', 'event');
+        $this->langPathService->method('parse')->willReturn(new LangPath(null, null, '/path'));
+        $resource = TestResourceFactory::create([
+            'url' => '/event',
+            'id' => '123',
+            'objectType' => 'event',
+        ]);
         $this->resourceLoader->method('load')->willReturn($resource);
 
         $this->assertTrue($this->mountService->isMountable('/path'));
@@ -114,6 +132,7 @@ class MountServiceTest extends TestCase
 
     public function testIsMountableWithLoadException(): void
     {
+        $this->langPathService->method('parse')->willReturn(new LangPath(null, null, '/path'));
         $this->resourceLoader->method('load')->willThrowException(new ResourceNotFoundException(ResourceLocation::ofPath('/test')));
         $this->assertFalse($this->mountService->isMountable('/path'));
     }
@@ -121,7 +140,10 @@ class MountServiceTest extends TestCase
 
     public function testIsMountableWithResourceIsInMicrositeNavigation(): void
     {
-        $resource = $this->createResource('/event', '', [
+        $this->langPathService->method('parse')->willReturn(new LangPath(null, null, '/path'));
+        $resource = TestResourceFactory::create([
+            'url' => '/event',
+            'id' => '123',
             'base' => [
                 'trees' => [
                     'navigation' => [
@@ -135,20 +157,5 @@ class MountServiceTest extends TestCase
         $this->resourceLoader->method('load')->willReturn($resource);
 
         $this->assertTrue($this->mountService->isMountable('/path'));
-    }
-
-    /**
-     * @param array<string,mixed> $data
-     */
-    private function createResource(string $location, string $objectType = '', array $data = []): Resource
-    {
-        return new Resource(
-            location: $location,
-            id: '123',
-            name: '',
-            objectType: $objectType,
-            lang: ResourceLanguage::default(),
-            data: new DataBag($data),
-        );
     }
 }
