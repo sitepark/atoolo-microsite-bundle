@@ -6,10 +6,10 @@ namespace Atoolo\Microsite\Test\Factory;
 
 use Atoolo\Microsite\Environment\MicrositeContext;
 use Atoolo\Microsite\Factory\MicrositeContextFactory;
-use Atoolo\Microsite\Test\TestResourceFactory;
 use Atoolo\Resource\DataBag;
 use Atoolo\Resource\Loader\ManifestLoader;
 use Atoolo\Resource\Manifest;
+use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceChannel;
 use Atoolo\Resource\ResourceHierarchyLoader;
 use Atoolo\Resource\ResourceTenant;
@@ -130,7 +130,7 @@ class MicrositeContextFactoryTest extends TestCase
 
         $this->manifestLoader->method('load')->willReturn(new Manifest(home: 42, errors: []));
 
-        $root = TestResourceFactory::create([
+        $root = Resource::create([
             'siteGroup' => ['id' => 5],
         ]);
         $this->navigationHierarchyLoader->method('loadRoot')->willReturn($root);
@@ -146,7 +146,11 @@ class MicrositeContextFactoryTest extends TestCase
             siteId: 5,
             mountableObjectTypes: $this->mountableObjectTypes,
         );
-        $this->assertEquals($expected, $context, 'The created context should match the expected one when manifest is available.');
+        $this->assertEquals(
+            $expected,
+            $context,
+            'The created context should match the expected one when manifest is available.',
+        );
     }
 
     /**
@@ -166,7 +170,7 @@ class MicrositeContextFactoryTest extends TestCase
 
         $this->rewriteContext->method('getBasePath')->willReturn('/base/path');
 
-        $root = TestResourceFactory::create([
+        $root = Resource::create([
             'id' => '123',
         ]);
 

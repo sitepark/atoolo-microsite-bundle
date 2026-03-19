@@ -7,9 +7,9 @@ namespace Atoolo\Microsite\Test\Service;
 use Atoolo\Microsite\Environment\MicrositeContext;
 use Atoolo\Microsite\Service\MountService;
 use Atoolo\Microsite\Service\Platform;
-use Atoolo\Microsite\Test\TestResourceFactory;
 use Atoolo\Resource\Exception\ResourceNotFoundException;
 use Atoolo\Resource\LangPath;
+use Atoolo\Resource\Resource;
 use Atoolo\Resource\ResourceLoader;
 use Atoolo\Resource\ResourceLocation;
 use Atoolo\Resource\Service\LangPathService;
@@ -104,7 +104,7 @@ class MountServiceTest extends TestCase
             $this->logger,
         );
 
-        $resource = TestResourceFactory::create([
+        $resource = Resource::create([
             'url' => '/event',
             'id' => '123',
             'objectType' => 'event',
@@ -120,7 +120,7 @@ class MountServiceTest extends TestCase
     public function testIsMountableWithResourceHasMountableObjectType(): void
     {
         $this->langPathService->method('parse')->willReturn(new LangPath(null, null, '/path'));
-        $resource = TestResourceFactory::create([
+        $resource = Resource::create([
             'url' => '/event',
             'id' => '123',
             'objectType' => 'event',
@@ -141,7 +141,7 @@ class MountServiceTest extends TestCase
     public function testIsMountableWithResourceIsInMicrositeNavigation(): void
     {
         $this->langPathService->method('parse')->willReturn(new LangPath(null, null, '/path'));
-        $resource = TestResourceFactory::create([
+        $resource = Resource::create([
             'url' => '/event',
             'id' => '123',
             'base' => [
