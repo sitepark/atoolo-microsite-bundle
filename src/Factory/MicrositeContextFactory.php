@@ -49,7 +49,7 @@ class MicrositeContextFactory
             micrositePath: $micrositePath,
             mainHost: $mainHost,
             siteId: $this->getSiteId($micrositePath),
-            mountableObjectTypes: $this->mountableObjectTypes ?? [],
+            mountableObjectTypes: $this->mountableObjectTypes,
         );
     }
 

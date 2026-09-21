@@ -16,7 +16,6 @@ class AtooloMicrositeBundle extends AbstractBundle
 {
     public function configure(DefinitionConfigurator $definition): void
     {
-        // @phpstan-ignore method.notFound
         $definition->rootNode()
             ->children()
             ->arrayNode('mountable_object_types')

@@ -14,7 +14,6 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder('atoolo_microsite');
 
-        // @phpstan-ignore method.notFound
         $treeBuilder->getRootNode()
             ->children()
             ->arrayNode('mountable_object_types')
