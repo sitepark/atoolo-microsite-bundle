@@ -60,7 +60,7 @@ class MicrositeContextFactory
             micrositePath: $micrositePath,
             mainHost: $mainHost,
             siteId: $siteId,
-            mountableObjectTypes: $this->mountableObjectTypes ?? [],
+            mountableObjectTypes: $this->mountableObjectTypes,
         );
     }
 
