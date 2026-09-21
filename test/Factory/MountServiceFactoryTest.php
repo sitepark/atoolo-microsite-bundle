@@ -9,6 +9,7 @@ use Atoolo\Microsite\Factory\MountServiceFactory;
 use Atoolo\Microsite\Service\MountService;
 use Atoolo\Microsite\Service\Platform;
 use Atoolo\Resource\ResourceLoader;
+use Atoolo\Resource\Service\LangPathService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
@@ -23,10 +24,11 @@ class MountServiceFactoryTest extends TestCase
     {
         $micrositeContext = $this->createStub(MicrositeContext::class);
         $resourceLoader = $this->createStub(ResourceLoader::class);
+        $langPathService = $this->createStub(LangPathService::class);
         $platform = $this->createStub(Platform::class);
         $logger = $this->createStub(\Psr\Log\LoggerInterface::class);
 
-        $factory = new MountServiceFactory($micrositeContext, $resourceLoader, $platform, $logger);
+        $factory = new MountServiceFactory($micrositeContext, $resourceLoader, $langPathService, $platform, $logger);
         $service = $factory->create();
 
         $this->assertInstanceOf(MountService::class, $service, 'Service should be an instance of MountService');
@@ -36,10 +38,11 @@ class MountServiceFactoryTest extends TestCase
     public function testCreateWithoutContext(): void
     {
         $resourceLoader = $this->createStub(ResourceLoader::class);
+        $langPathService = $this->createStub(LangPathService::class);
         $platform = $this->createStub(Platform::class);
         $logger = $this->createStub(\Psr\Log\LoggerInterface::class);
 
-        $factory = new MountServiceFactory(null, $resourceLoader, $platform, $logger);
+        $factory = new MountServiceFactory(null, $resourceLoader, $langPathService, $platform, $logger);
         $service = $factory->create();
 
         $this->assertNull($service, 'Service should be null when no context is provided');
