@@ -68,7 +68,7 @@ class MicrositeUrlRewriteHandler implements UrlRewriterHandler
         $langPath = $this->langPathService->parse($url->path ?? '/');
 
         $path = ($langPath->lang !== null ? '/' . $langPath->lang : '') . substr(
-            $langPath->path ?? '/',
+            $langPath->path,
             strlen($micrositePath),
         );
         if (empty($path)) {
