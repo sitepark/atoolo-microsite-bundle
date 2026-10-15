@@ -7,6 +7,8 @@ namespace Atoolo\Microsite\Test\Service;
 use Atoolo\Microsite\Environment\MicrositeContext;
 use Atoolo\Microsite\Service\MicrositeUrlRewriteHandler;
 use Atoolo\Microsite\Service\MountService;
+use Atoolo\Resource\LangPath;
+use Atoolo\Resource\Service\LangPathService;
 use Atoolo\Rewrite\Dto\Url;
 use Atoolo\Rewrite\Dto\UrlRewriterHandlerContext;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -24,6 +26,8 @@ class MicrositeUrlRewriteHandlerTest extends TestCase
 
     private MountService&MockObject $mountService;
 
+    private LangPathService $langPathService;
+
     private MicrositeUrlRewriteHandler $handler;
 
     /**
@@ -34,14 +38,20 @@ class MicrositeUrlRewriteHandlerTest extends TestCase
         $this->micrositeContext = $this->createStub(MicrositeContext::class);
         $this->context = $this->createStub(UrlRewriterHandlerContext::class);
         $this->mountService = $this->createMock(MountService::class);
-        $this->handler = new MicrositeUrlRewriteHandler($this->micrositeContext, $this->mountService);
+        $this->langPathService = $this->createMock(LangPathService::class);
+        $this->handler = new MicrositeUrlRewriteHandler(
+            $this->micrositeContext,
+            $this->mountService,
+            $this->langPathService,
+        );
     }
 
     public function testRewriteWithNullMicrositeContext(): void
     {
         $url = Url::builder()->path('/path')->build();
+        $this->langPathService->method('parse')->willReturn(new LangPath(null, null, '/path'));
 
-        $handler = new MicrositeUrlRewriteHandler(null, null);
+        $handler = new MicrositeUrlRewriteHandler(null, null, $this->langPathService);
         $result = $handler->rewrite($url, $this->context);
 
         $this->assertSame($url, $result);
@@ -74,7 +84,8 @@ class MicrositeUrlRewriteHandlerTest extends TestCase
             siteId: 123,
             mountableObjectTypes: [],
         );
-        $handler = new MicrositeUrlRewriteHandler($micrositeContext, null);
+        $this->langPathService->method('parse')->willReturn(new LangPath(null, null, '/microsite/abc/path'));
+        $handler = new MicrositeUrlRewriteHandler($micrositeContext, null, $this->langPathService);
         $result = $handler->rewrite($url, $this->context);
         $this->assertEquals('/path', $result->path);
     }
@@ -92,8 +103,8 @@ class MicrositeUrlRewriteHandlerTest extends TestCase
             siteId: 123,
             mountableObjectTypes: [],
         );
-
-        $handler = new MicrositeUrlRewriteHandler($micrositeContext, null);
+        $this->langPathService->method('parse')->willReturn(new LangPath(null, null, '/path'));
+        $handler = new MicrositeUrlRewriteHandler($micrositeContext, null, $this->langPathService);
         $result = $handler->rewrite($url, $this->context);
         $this->assertSame($url, $result);
     }
@@ -111,12 +122,33 @@ class MicrositeUrlRewriteHandlerTest extends TestCase
             siteId: 123,
             mountableObjectTypes: [],
         );
+        $this->langPathService->method('parse')->willReturn(new LangPath(null, null, '/path'));
 
         $this->mountService->method('isMountable')->willReturn(false);
-        $handler = new MicrositeUrlRewriteHandler($micrositeContext, $this->mountService);
+        $handler = new MicrositeUrlRewriteHandler($micrositeContext, $this->mountService, $this->langPathService);
         $result = $handler->rewrite($url, $this->context);
         $expected = Url::builder()->scheme('https')->host('www.example.com')->path('/path')->build();
         $this->assertEquals($expected, $result);
+    }
+
+    public function testRewriteWithMicrositePathThatBecomesEmpty(): void
+    {
+        $url = Url::builder()->path('/microsite/abc')->build();
+
+        $micrositeContext = new MicrositeContext(
+            resourceDir: '',
+            currentPath: '/',
+            micrositeHost: 'www.test.com',
+            micrositePath: '/microsite/abc',
+            mainHost: 'www.example.com',
+            siteId: 123,
+            mountableObjectTypes: [],
+        );
+        $this->langPathService->method('parse')->willReturn(new LangPath(null, null, '/microsite/abc'));
+        $handler = new MicrositeUrlRewriteHandler($micrositeContext, null, $this->langPathService);
+        $result = $handler->rewrite($url, $this->context);
+
+        $this->assertEquals('/', $result->path, 'When micrositePath exactly matches the URL path, the result should be /');
     }
 
     public function testRewriteWithMountablePath(): void
@@ -133,10 +165,11 @@ class MicrositeUrlRewriteHandlerTest extends TestCase
             siteId: 123,
             mountableObjectTypes: [],
         );
+        $this->langPathService->method('parse')->willReturn(new LangPath(null, null, '/path'));
 
         $this->mountService->method('isMountable')->willReturn(true);
         $this->mountService->expects($this->once())->method('toMountedUrl');
-        $handler = new MicrositeUrlRewriteHandler($micrositeContext, $this->mountService);
+        $handler = new MicrositeUrlRewriteHandler($micrositeContext, $this->mountService, $this->langPathService);
 
         $handler->rewrite($url, $this->context);
     }
